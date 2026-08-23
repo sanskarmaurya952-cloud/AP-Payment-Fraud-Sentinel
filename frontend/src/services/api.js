@@ -1,9 +1,11 @@
 // Bulletproof API Base URL resolver
 const getApiBase = () => {
-  const rawUrl = import.meta.env.VITE_API_URL || '';
-  if (!rawUrl || rawUrl.trim() === '') {
-    return '/api/v1';
-  }
+  const envUrl = import.meta.env.VITE_API_URL;
+  const rawUrl = envUrl && envUrl.trim() !== '' 
+    ? envUrl 
+    : (import.meta.env.PROD ? 'https://ap-payment-fraud-sentinel.onrender.com' : '/api/v1');
+
+  if (rawUrl === '/api/v1') return '/api/v1';
   const clean = rawUrl.trim().replace(/\/+$/, '').replace(/\/api\/v1$/, '');
   return `${clean}/api/v1`;
 };
