@@ -5,7 +5,10 @@ import { dark } from '@clerk/themes';
 import './index.css';
 import App from './App.jsx';
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const savedCustomKey = typeof window !== 'undefined' ? localStorage.getItem('CLERK_CUSTOM_KEY') : null;
+const envKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const PUBLISHABLE_KEY = savedCustomKey || envKey;
+
 const isClerkKeyValid = PUBLISHABLE_KEY && 
   (PUBLISHABLE_KEY.startsWith('pk_test_') || PUBLISHABLE_KEY.startsWith('pk_live_')) && 
   !PUBLISHABLE_KEY.includes('placeholder');

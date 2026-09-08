@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import DashboardView from './components/Dashboard/DashboardView';
 import InvoiceDetailView from './components/InvoiceDetail/InvoiceDetailView';
@@ -25,6 +25,8 @@ function ClerkGatedContent({ renderDashboardViews }) {
 export default function App({ isClerkConfigured = false }) {
   const [currentTab, setCurrentTab] = useState('dashboard');
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(1);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUserRole, setCurrentUserRole] = useState('Chief Compliance Officer (India)');
 
   const handleSelectInvoice = (id) => {
     setSelectedInvoiceId(id);
@@ -38,6 +40,22 @@ export default function App({ isClerkConfigured = false }) {
       setCurrentTab('detail');
     } catch (err) {
       console.error('Demo trigger failed:', err);
+    }
+  };
+
+  const handleAuthenticate = (role) => {
+    setCurrentUserRole(role);
+    setIsAuthenticated(true);
+  };
+
+  const handleSignOut = () => {
+    setIsAuthenticated(false);
+  };
+
+  const handleSaveCustomClerkKey = (key) => {
+    if (key && key.trim().startsWith('pk_')) {
+      localStorage.setItem('CLERK_CUSTOM_KEY', key.trim());
+      window.location.reload();
     }
   };
 
@@ -86,13 +104,23 @@ export default function App({ isClerkConfigured = false }) {
         setCurrentTab={setCurrentTab}
         selectedInvoiceId={selectedInvoiceId}
         isClerkConfigured={isClerkConfigured}
+        isAuthenticated={isAuthenticated}
+        currentUserRole={currentUserRole}
+        onSignOut={handleSignOut}
+        onOpenAuthGate={() => setIsAuthenticated(false)}
       />
 
-      {/* Auth Gated or Direct Content */}
+      {/* Auth Gated or Interactive Auth View */}
       {isClerkConfigured ? (
         <ClerkGatedContent renderDashboardViews={renderDashboardViews} />
-      ) : (
+      ) : isAuthenticated ? (
         renderDashboardViews()
+      ) : (
+        <AuthGateView 
+          isClerkConfigured={false} 
+          onAuthenticate={handleAuthenticate}
+          onSaveCustomClerkKey={handleSaveCustomClerkKey}
+        />
       )}
 
       {/* Footer */}
