@@ -11,7 +11,41 @@ import {
 } from 'lucide-react';
 import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/clerk-react';
 
-export default function Navbar({ currentTab, setCurrentTab, selectedInvoiceId, isClerkConfigured, demoBypassed, onResetAuth }) {
+function ClerkAuthControls() {
+  return (
+    <>
+      <SignedIn>
+        <div className="flex items-center gap-3 pl-2 sm:pl-4 sm:border-l sm:border-slate-800">
+          <div className="hidden sm:flex flex-col text-right">
+            <span className="text-xs font-bold text-white flex items-center justify-end gap-1.5">
+              <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+              Finance Officer
+            </span>
+            <span className="text-[10px] text-slate-400 font-mono">Authenticated</span>
+          </div>
+          <UserButton 
+            afterSignOutUrl="/"
+            appearance={{
+              elements: {
+                userButtonAvatarBox: 'w-9 h-9 ring-2 ring-red-500/30 hover:ring-red-500 transition-all'
+              }
+            }}
+          />
+        </div>
+      </SignedIn>
+
+      <SignedOut>
+        <SignInButton mode="modal">
+          <button className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold text-xs tracking-wide shadow-md shadow-red-600/20 flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer">
+            <Lock className="w-3.5 h-3.5" /> Sign In
+          </button>
+        </SignInButton>
+      </SignedOut>
+    </>
+  );
+}
+
+export default function Navbar({ currentTab, setCurrentTab, selectedInvoiceId, isClerkConfigured }) {
   const navItems = [
     { id: 'dashboard', label: 'Executive Dashboard', shortLabel: 'Dashboard', icon: LayoutDashboard },
     { id: 'detail', label: selectedInvoiceId ? `Evidence #${selectedInvoiceId}` : 'Evidence Inspector', shortLabel: 'Evidence', icon: FileSearch },
@@ -81,47 +115,13 @@ export default function Navbar({ currentTab, setCurrentTab, selectedInvoiceId, i
           {/* Auth Section */}
           <div className="flex items-center space-x-3">
             {isClerkConfigured ? (
-              <>
-                <SignedIn>
-                  <div className="flex items-center gap-3 pl-2 sm:pl-4 sm:border-l sm:border-slate-800">
-                    <div className="hidden sm:flex flex-col text-right">
-                      <span className="text-xs font-bold text-white flex items-center justify-end gap-1.5">
-                        <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
-                        Finance Officer
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">Authenticated</span>
-                    </div>
-                    <UserButton 
-                      afterSignOutUrl="/"
-                      appearance={{
-                        elements: {
-                          userButtonAvatarBox: 'w-9 h-9 ring-2 ring-red-500/30 hover:ring-red-500 transition-all'
-                        }
-                      }}
-                    />
-                  </div>
-                </SignedIn>
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <button className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold text-xs tracking-wide shadow-md shadow-red-600/20 flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer">
-                      <Lock className="w-3.5 h-3.5" /> Sign In
-                    </button>
-                  </SignInButton>
-                </SignedOut>
-              </>
+              <ClerkAuthControls />
             ) : (
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono text-amber-300 bg-amber-500/10 px-3 py-1 rounded-xl border border-amber-500/30 font-bold hidden sm:inline-block">
-                  🔑 Sandbox Mode
+                <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-xl border border-emerald-500/30 font-bold flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  Live Defense
                 </span>
-                {demoBypassed && (
-                  <button
-                    onClick={onResetAuth}
-                    className="text-[11px] text-slate-400 hover:text-white font-mono underline cursor-pointer"
-                  >
-                    Lock Portal
-                  </button>
-                )}
               </div>
             )}
           </div>

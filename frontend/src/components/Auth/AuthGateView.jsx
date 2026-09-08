@@ -14,6 +14,24 @@ import {
 } from 'lucide-react';
 import { SignInButton, SignUpButton } from '@clerk/clerk-react';
 
+function ClerkButtons() {
+  return (
+    <>
+      <SignInButton mode="modal">
+        <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-black text-sm tracking-wider uppercase shadow-xl shadow-red-600/30 flex items-center justify-center gap-2.5 transition-all hover:scale-105 active:scale-95 cursor-pointer">
+          <KeyRound className="w-4 h-4" /> Sign In to Defense Portal
+        </button>
+      </SignInButton>
+
+      <SignUpButton mode="modal">
+        <button className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm border border-slate-700 transition-all flex items-center justify-center gap-2 hover:scale-105 active:scale-95 cursor-pointer">
+          Create Reviewer Account
+        </button>
+      </SignUpButton>
+    </>
+  );
+}
+
 export default function AuthGateView({ onDemoBypass, isClerkConfigured }) {
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center py-10">
@@ -43,46 +61,16 @@ export default function AuthGateView({ onDemoBypass, isClerkConfigured }) {
           {/* Auth Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             {isClerkConfigured ? (
-              <>
-                <SignInButton mode="modal">
-                  <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-black text-sm tracking-wider uppercase shadow-xl shadow-red-600/30 flex items-center justify-center gap-2.5 transition-all hover:scale-105 active:scale-95 cursor-pointer">
-                    <KeyRound className="w-4 h-4" /> Sign In to Defense Portal
-                  </button>
-                </SignInButton>
-
-                <SignUpButton mode="modal">
-                  <button className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm border border-slate-700 transition-all flex items-center justify-center gap-2 hover:scale-105 active:scale-95 cursor-pointer">
-                    Create Reviewer Account
-                  </button>
-                </SignUpButton>
-              </>
+              <ClerkButtons />
             ) : (
               <button 
                 onClick={onDemoBypass}
                 className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-black text-sm tracking-wider uppercase shadow-xl shadow-red-600/30 flex items-center justify-center gap-2.5 transition-all hover:scale-105 active:scale-95 cursor-pointer"
               >
-                <ShieldCheck className="w-5 h-5" /> Open Portal in Sandbox Demo Mode
+                <ShieldCheck className="w-5 h-5" /> Open Defense Portal
               </button>
             )}
           </div>
-
-          {/* Key Configuration Notice if needed */}
-          {!isClerkConfigured && (
-            <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/40 text-left text-xs font-mono space-y-2 max-w-xl mx-auto">
-              <div className="flex items-center gap-2 text-amber-300 font-bold">
-                <Info className="w-4 h-4 shrink-0" /> Clerk Key Setup Guide:
-              </div>
-              <p className="text-slate-300 leading-relaxed">
-                Add your Clerk Publishable Key in <code className="bg-slate-950 px-2 py-0.5 rounded text-amber-300">frontend/.env.local</code>:
-              </p>
-              <div className="p-2.5 bg-slate-950 rounded-xl text-[11px] text-emerald-400 select-all overflow-x-auto">
-                VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_key_here
-              </div>
-              <div className="text-[11px] text-slate-400">
-                Get your key for free at <a href="https://dashboard.clerk.com" target="_blank" rel="noreferrer" className="text-cyan-400 underline">dashboard.clerk.com</a>
-              </div>
-            </div>
-          )}
 
         </div>
 

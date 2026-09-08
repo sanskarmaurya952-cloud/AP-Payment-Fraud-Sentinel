@@ -9,10 +9,22 @@ import AuthGateView from './components/Auth/AuthGateView';
 import { api } from './services/api';
 import { SignedIn, SignedOut } from '@clerk/clerk-react';
 
+function ClerkGatedContent({ renderDashboardViews }) {
+  return (
+    <>
+      <SignedIn>
+        {renderDashboardViews()}
+      </SignedIn>
+      <SignedOut>
+        <AuthGateView isClerkConfigured={true} />
+      </SignedOut>
+    </>
+  );
+}
+
 export default function App({ isClerkConfigured = false }) {
   const [currentTab, setCurrentTab] = useState('dashboard');
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(1);
-  const [demoBypassed, setDemoBypassed] = useState(!isClerkConfigured);
 
   const handleSelectInvoice = (id) => {
     setSelectedInvoiceId(id);
@@ -74,29 +86,13 @@ export default function App({ isClerkConfigured = false }) {
         setCurrentTab={setCurrentTab}
         selectedInvoiceId={selectedInvoiceId}
         isClerkConfigured={isClerkConfigured}
-        demoBypassed={demoBypassed}
-        onResetAuth={() => setDemoBypassed(false)}
       />
 
-      {/* Auth Gated Content */}
+      {/* Auth Gated or Direct Content */}
       {isClerkConfigured ? (
-        <>
-          <SignedIn>
-            {renderDashboardViews()}
-          </SignedIn>
-          <SignedOut>
-            <AuthGateView isClerkConfigured={true} />
-          </SignedOut>
-        </>
+        <ClerkGatedContent renderDashboardViews={renderDashboardViews} />
       ) : (
-        demoBypassed ? (
-          renderDashboardViews()
-        ) : (
-          <AuthGateView 
-            isClerkConfigured={false} 
-            onDemoBypass={() => setDemoBypassed(true)} 
-          />
-        )
+        renderDashboardViews()
       )}
 
       {/* Footer */}
