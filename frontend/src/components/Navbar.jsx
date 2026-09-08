@@ -6,11 +6,12 @@ import {
   Layers, 
   Building2, 
   Zap,
-  Activity,
-  CheckCircle2
+  Lock,
+  UserCheck
 } from 'lucide-react';
+import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/clerk-react';
 
-export default function Navbar({ currentTab, setCurrentTab, selectedInvoiceId }) {
+export default function Navbar({ currentTab, setCurrentTab, selectedInvoiceId, isClerkConfigured, demoBypassed, onResetAuth }) {
   const navItems = [
     { id: 'dashboard', label: 'Executive Dashboard', shortLabel: 'Dashboard', icon: LayoutDashboard },
     { id: 'detail', label: selectedInvoiceId ? `Evidence #${selectedInvoiceId}` : 'Evidence Inspector', shortLabel: 'Evidence', icon: FileSearch },
@@ -49,7 +50,7 @@ export default function Navbar({ currentTab, setCurrentTab, selectedInvoiceId })
           </div>
 
           {/* Navigation Links */}
-          <nav className="flex items-center space-x-1 sm:space-x-1.5 overflow-x-auto py-1">
+          <nav className="hidden lg:flex items-center space-x-1 sm:space-x-1.5 overflow-x-auto py-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
@@ -66,8 +67,7 @@ export default function Navbar({ currentTab, setCurrentTab, selectedInvoiceId })
                   }`}
                 >
                   <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-red-400' : item.highlight ? 'text-amber-400' : 'text-slate-400'}`} />
-                  <span className="hidden md:inline">{item.label}</span>
-                  <span className="md:hidden">{item.shortLabel}</span>
+                  <span>{item.label}</span>
                   {item.badge && (
                     <span className="hidden xl:inline-block text-[10px] font-bold px-1.5 py-0.2 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded">
                       {item.badge}
@@ -78,7 +78,78 @@ export default function Navbar({ currentTab, setCurrentTab, selectedInvoiceId })
             })}
           </nav>
 
+          {/* Auth Section */}
+          <div className="flex items-center space-x-3">
+            {isClerkConfigured ? (
+              <>
+                <SignedIn>
+                  <div className="flex items-center gap-3 pl-2 sm:pl-4 sm:border-l sm:border-slate-800">
+                    <div className="hidden sm:flex flex-col text-right">
+                      <span className="text-xs font-bold text-white flex items-center justify-end gap-1.5">
+                        <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        Finance Officer
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">Authenticated</span>
+                    </div>
+                    <UserButton 
+                      afterSignOutUrl="/"
+                      appearance={{
+                        elements: {
+                          userButtonAvatarBox: 'w-9 h-9 ring-2 ring-red-500/30 hover:ring-red-500 transition-all'
+                        }
+                      }}
+                    />
+                  </div>
+                </SignedIn>
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <button className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold text-xs tracking-wide shadow-md shadow-red-600/20 flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer">
+                      <Lock className="w-3.5 h-3.5" /> Sign In
+                    </button>
+                  </SignInButton>
+                </SignedOut>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-mono text-amber-300 bg-amber-500/10 px-3 py-1 rounded-xl border border-amber-500/30 font-bold hidden sm:inline-block">
+                  🔑 Sandbox Mode
+                </span>
+                {demoBypassed && (
+                  <button
+                    onClick={onResetAuth}
+                    className="text-[11px] text-slate-400 hover:text-white font-mono underline cursor-pointer"
+                  >
+                    Lock Portal
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
         </div>
+
+        {/* Mobile Navigation Links Bar */}
+        <div className="lg:hidden flex items-center space-x-1 overflow-x-auto pb-3 pt-1 border-t border-slate-900">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = currentTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setCurrentTab(item.id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap cursor-pointer ${
+                  isActive
+                    ? 'bg-red-500/15 text-red-400 border border-red-500/30'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5 shrink-0" />
+                <span>{item.shortLabel}</span>
+              </button>
+            );
+          })}
+        </div>
+
       </div>
     </header>
   );

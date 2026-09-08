@@ -5,11 +5,14 @@ import InvoiceDetailView from './components/InvoiceDetail/InvoiceDetailView';
 import BatchView from './components/BatchProcessing/BatchView';
 import VendorHubView from './components/VendorHub/VendorHubView';
 import DemoView from './components/Demo/DemoView';
+import AuthGateView from './components/Auth/AuthGateView';
 import { api } from './services/api';
+import { SignedIn, SignedOut } from '@clerk/clerk-react';
 
-export default function App() {
+export default function App({ isClerkConfigured = false }) {
   const [currentTab, setCurrentTab] = useState('dashboard');
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(1);
+  const [demoBypassed, setDemoBypassed] = useState(!isClerkConfigured);
 
   const handleSelectInvoice = (id) => {
     setSelectedInvoiceId(id);
@@ -26,6 +29,43 @@ export default function App() {
     }
   };
 
+  const renderDashboardViews = () => (
+    <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      {currentTab === 'dashboard' && (
+        <DashboardView
+          onSelectInvoice={handleSelectInvoice}
+          onNavigateTab={setCurrentTab}
+          onRunDemo={handleRunDemoFromDashboard}
+        />
+      )}
+
+      {currentTab === 'detail' && (
+        <InvoiceDetailView
+          invoiceId={selectedInvoiceId}
+          onBack={() => setCurrentTab('dashboard')}
+          onNavigateTab={setCurrentTab}
+        />
+      )}
+
+      {currentTab === 'batch' && (
+        <BatchView
+          onSelectInvoice={handleSelectInvoice}
+        />
+      )}
+
+      {currentTab === 'vendors' && (
+        <VendorHubView />
+      )}
+
+      {currentTab === 'demo' && (
+        <DemoView
+          onSelectInvoice={handleSelectInvoice}
+          onNavigateTab={setCurrentTab}
+        />
+      )}
+    </main>
+  );
+
   return (
     <div className="min-h-screen bg-[#060911] text-slate-100 flex flex-col selection:bg-red-500 selection:text-white">
       {/* Top Navigation */}
@@ -33,43 +73,31 @@ export default function App() {
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
         selectedInvoiceId={selectedInvoiceId}
+        isClerkConfigured={isClerkConfigured}
+        demoBypassed={demoBypassed}
+        onResetAuth={() => setDemoBypassed(false)}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        {currentTab === 'dashboard' && (
-          <DashboardView
-            onSelectInvoice={handleSelectInvoice}
-            onNavigateTab={setCurrentTab}
-            onRunDemo={handleRunDemoFromDashboard}
+      {/* Auth Gated Content */}
+      {isClerkConfigured ? (
+        <>
+          <SignedIn>
+            {renderDashboardViews()}
+          </SignedIn>
+          <SignedOut>
+            <AuthGateView isClerkConfigured={true} />
+          </SignedOut>
+        </>
+      ) : (
+        demoBypassed ? (
+          renderDashboardViews()
+        ) : (
+          <AuthGateView 
+            isClerkConfigured={false} 
+            onDemoBypass={() => setDemoBypassed(true)} 
           />
-        )}
-
-        {currentTab === 'detail' && (
-          <InvoiceDetailView
-            invoiceId={selectedInvoiceId}
-            onBack={() => setCurrentTab('dashboard')}
-            onNavigateTab={setCurrentTab}
-          />
-        )}
-
-        {currentTab === 'batch' && (
-          <BatchView
-            onSelectInvoice={handleSelectInvoice}
-          />
-        )}
-
-        {currentTab === 'vendors' && (
-          <VendorHubView />
-        )}
-
-        {currentTab === 'demo' && (
-          <DemoView
-            onSelectInvoice={handleSelectInvoice}
-            onNavigateTab={setCurrentTab}
-          />
-        )}
-      </main>
+        )
+      )}
 
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-8 text-center text-xs text-slate-400 font-mono mt-12">
