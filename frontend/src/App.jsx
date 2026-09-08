@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import DashboardView from './components/Dashboard/DashboardView';
 import InvoiceDetailView from './components/InvoiceDetail/InvoiceDetailView';
@@ -9,24 +9,9 @@ import AuthGateView from './components/Auth/AuthGateView';
 import { api } from './services/api';
 import { SignedIn, SignedOut } from '@clerk/clerk-react';
 
-function ClerkGatedContent({ renderDashboardViews }) {
-  return (
-    <>
-      <SignedIn>
-        {renderDashboardViews()}
-      </SignedIn>
-      <SignedOut>
-        <AuthGateView isClerkConfigured={true} />
-      </SignedOut>
-    </>
-  );
-}
-
-export default function App({ isClerkConfigured = false }) {
+export default function App() {
   const [currentTab, setCurrentTab] = useState('dashboard');
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(1);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUserRole, setCurrentUserRole] = useState('Chief Compliance Officer (India)');
 
   const handleSelectInvoice = (id) => {
     setSelectedInvoiceId(id);
@@ -40,22 +25,6 @@ export default function App({ isClerkConfigured = false }) {
       setCurrentTab('detail');
     } catch (err) {
       console.error('Demo trigger failed:', err);
-    }
-  };
-
-  const handleAuthenticate = (role) => {
-    setCurrentUserRole(role);
-    setIsAuthenticated(true);
-  };
-
-  const handleSignOut = () => {
-    setIsAuthenticated(false);
-  };
-
-  const handleSaveCustomClerkKey = (key) => {
-    if (key && key.trim().startsWith('pk_')) {
-      localStorage.setItem('CLERK_CUSTOM_KEY', key.trim());
-      window.location.reload();
     }
   };
 
@@ -103,25 +72,15 @@ export default function App({ isClerkConfigured = false }) {
         currentTab={currentTab}
         setCurrentTab={setCurrentTab}
         selectedInvoiceId={selectedInvoiceId}
-        isClerkConfigured={isClerkConfigured}
-        isAuthenticated={isAuthenticated}
-        currentUserRole={currentUserRole}
-        onSignOut={handleSignOut}
-        onOpenAuthGate={() => setIsAuthenticated(false)}
       />
 
-      {/* Auth Gated or Interactive Auth View */}
-      {isClerkConfigured ? (
-        <ClerkGatedContent renderDashboardViews={renderDashboardViews} />
-      ) : isAuthenticated ? (
-        renderDashboardViews()
-      ) : (
-        <AuthGateView 
-          isClerkConfigured={false} 
-          onAuthenticate={handleAuthenticate}
-          onSaveCustomClerkKey={handleSaveCustomClerkKey}
-        />
-      )}
+      {/* Clerk Authentication Gate */}
+      <SignedIn>
+        {renderDashboardViews()}
+      </SignedIn>
+      <SignedOut>
+        <AuthGateView />
+      </SignedOut>
 
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-8 text-center text-xs text-slate-400 font-mono mt-12">

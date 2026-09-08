@@ -5,39 +5,29 @@ import { dark } from '@clerk/themes';
 import './index.css';
 import App from './App.jsx';
 
-const savedCustomKey = typeof window !== 'undefined' ? localStorage.getItem('CLERK_CUSTOM_KEY') : null;
-const envKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-const PUBLISHABLE_KEY = savedCustomKey || envKey;
-
-const isClerkKeyValid = PUBLISHABLE_KEY && 
-  (PUBLISHABLE_KEY.startsWith('pk_test_') || PUBLISHABLE_KEY.startsWith('pk_live_')) && 
-  !PUBLISHABLE_KEY.includes('placeholder');
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || 'pk_test_Z3JlYXQtZ2hvc3QtNDEzMS5jbGVyay5hY2NvdW50cy5kZXYk';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {isClerkKeyValid ? (
-      <ClerkProvider
-        publishableKey={PUBLISHABLE_KEY}
-        appearance={{
-          baseTheme: dark,
-          variables: {
-            colorPrimary: '#ef4444',
-            colorBackground: '#0d1322',
-            colorText: '#f8fafc',
-            colorInputBackground: '#060911',
-            colorInputText: '#f8fafc'
-          },
-          elements: {
-            card: 'border border-slate-800 shadow-2xl rounded-2xl',
-            formButtonPrimary: 'bg-red-600 hover:bg-red-500 font-bold text-white shadow-lg shadow-red-600/30'
-          }
-        }}
-        afterSignOutUrl="/"
-      >
-        <App isClerkConfigured={true} />
-      </ClerkProvider>
-    ) : (
-      <App isClerkConfigured={false} />
-    )}
+    <ClerkProvider
+      publishableKey={PUBLISHABLE_KEY}
+      appearance={{
+        baseTheme: dark,
+        variables: {
+          colorPrimary: '#ef4444',
+          colorBackground: '#0d1322',
+          colorText: '#f8fafc',
+          colorInputBackground: '#060911',
+          colorInputText: '#f8fafc'
+        },
+        elements: {
+          card: 'border border-slate-800 shadow-2xl rounded-2xl',
+          formButtonPrimary: 'bg-red-600 hover:bg-red-500 font-bold text-white shadow-lg shadow-red-600/30'
+        }
+      }}
+      afterSignOutUrl="/"
+    >
+      <App />
+    </ClerkProvider>
   </StrictMode>
 );

@@ -7,55 +7,13 @@ import {
   Building2, 
   Zap,
   Lock,
-  UserCheck,
-  LogOut
+  UserCheck
 } from 'lucide-react';
-import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, UserButton, SignInButton, useUser } from '@clerk/clerk-react';
 
-function ClerkAuthControls() {
-  return (
-    <>
-      <SignedIn>
-        <div className="flex items-center gap-3 pl-2 sm:pl-4 sm:border-l sm:border-slate-800">
-          <div className="hidden sm:flex flex-col text-right">
-            <span className="text-xs font-bold text-white flex items-center justify-end gap-1.5">
-              <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
-              Finance Officer
-            </span>
-            <span className="text-[10px] text-slate-400 font-mono">Authenticated</span>
-          </div>
-          <UserButton 
-            afterSignOutUrl="/"
-            appearance={{
-              elements: {
-                userButtonAvatarBox: 'w-9 h-9 ring-2 ring-red-500/30 hover:ring-red-500 transition-all'
-              }
-            }}
-          />
-        </div>
-      </SignedIn>
+export default function Navbar({ currentTab, setCurrentTab, selectedInvoiceId }) {
+  const { user } = useUser();
 
-      <SignedOut>
-        <SignInButton mode="modal">
-          <button className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold text-xs tracking-wide shadow-md shadow-red-600/20 flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer">
-            <Lock className="w-3.5 h-3.5" /> Sign In
-          </button>
-        </SignInButton>
-      </SignedOut>
-    </>
-  );
-}
-
-export default function Navbar({ 
-  currentTab, 
-  setCurrentTab, 
-  selectedInvoiceId, 
-  isClerkConfigured, 
-  isAuthenticated, 
-  currentUserRole, 
-  onSignOut,
-  onOpenAuthGate
-}) {
   const navItems = [
     { id: 'dashboard', label: 'Executive Dashboard', shortLabel: 'Dashboard', icon: LayoutDashboard },
     { id: 'detail', label: selectedInvoiceId ? `Evidence #${selectedInvoiceId}` : 'Evidence Inspector', shortLabel: 'Evidence', icon: FileSearch },
@@ -72,7 +30,7 @@ export default function Navbar({
           {/* Brand Logo & Status */}
           <div 
             className="flex items-center space-x-3.5 cursor-pointer select-none group"
-            onClick={() => isAuthenticated && setCurrentTab('dashboard')}
+            onClick={() => setCurrentTab('dashboard')}
           >
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-rose-600 via-red-500 to-amber-500 flex items-center justify-center shadow-lg shadow-red-500/20 group-hover:scale-105 transition-transform">
               <ShieldAlert className="w-6 h-6 text-white" />
@@ -93,8 +51,8 @@ export default function Navbar({
             </div>
           </div>
 
-          {/* Navigation Links (Visible when authenticated) */}
-          {isAuthenticated ? (
+          {/* Navigation Links (Visible when Signed In) */}
+          <SignedIn>
             <nav className="hidden lg:flex items-center space-x-1 sm:space-x-1.5 overflow-x-auto py-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -122,47 +80,51 @@ export default function Navbar({
                 );
               })}
             </nav>
-          ) : (
+          </SignedIn>
+
+          <SignedOut>
             <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-400">
               <Lock className="w-3.5 h-3.5 text-red-400" /> Authentication Required
             </div>
-          )}
+          </SignedOut>
 
-          {/* Auth Section */}
+          {/* Clerk Auth Section */}
           <div className="flex items-center space-x-3">
-            {isClerkConfigured ? (
-              <ClerkAuthControls />
-            ) : isAuthenticated ? (
+            <SignedIn>
               <div className="flex items-center gap-3 pl-2 sm:pl-4 sm:border-l sm:border-slate-800">
                 <div className="hidden sm:flex flex-col text-right">
                   <span className="text-xs font-bold text-white flex items-center justify-end gap-1.5">
                     <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    {currentUserRole.split(' ')[0]}
+                    {user?.firstName || user?.username || 'Finance Officer'}
                   </span>
-                  <span className="text-[10px] text-emerald-400 font-mono">Verified Session</span>
+                  <span className="text-[10px] text-emerald-400 font-mono">
+                    {user?.primaryEmailAddress?.emailAddress ? user.primaryEmailAddress.emailAddress.split('@')[0] : 'Verified'}
+                  </span>
                 </div>
-                <button
-                  onClick={onSignOut}
-                  className="p-2 rounded-xl bg-slate-900 hover:bg-red-950/40 text-slate-400 hover:text-red-400 border border-slate-800 hover:border-red-500/30 transition-all cursor-pointer"
-                  title="Lock Portal / Sign Out"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
+                <UserButton 
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      userButtonAvatarBox: 'w-9 h-9 ring-2 ring-red-500/30 hover:ring-red-500 transition-all'
+                    }
+                  }}
+                />
               </div>
-            ) : (
-              <button
-                onClick={onOpenAuthGate}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold text-xs tracking-wide shadow-md shadow-red-600/20 flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer"
-              >
-                <Lock className="w-3.5 h-3.5" /> Sign In
-              </button>
-            )}
+            </SignedIn>
+
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold text-xs tracking-wide shadow-md shadow-red-600/20 flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer">
+                  <Lock className="w-3.5 h-3.5" /> Sign In
+                </button>
+              </SignInButton>
+            </SignedOut>
           </div>
 
         </div>
 
-        {/* Mobile Navigation Links Bar */}
-        {isAuthenticated && (
+        {/* Mobile Navigation Links Bar (When Signed In) */}
+        <SignedIn>
           <div className="lg:hidden flex items-center space-x-1 overflow-x-auto pb-3 pt-1 border-t border-slate-900">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -183,7 +145,7 @@ export default function Navbar({
               );
             })}
           </div>
-        )}
+        </SignedIn>
 
       </div>
     </header>
