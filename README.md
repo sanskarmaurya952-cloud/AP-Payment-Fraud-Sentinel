@@ -2,13 +2,24 @@
 > **Autonomous Multi-Agent Accounts-Payable Security & Payment Interceptor**
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/React-18.x-61DAFB.svg?logo=react&logoColor=black)](https://reactjs.org/)
+[![React](https://img.shields.io/badge/React-19.x-61DAFB.svg?logo=react&logoColor=black)](https://reactjs.org/)
+[![Clerk](https://img.shields.io/badge/Auth-Clerk-6C47FF.svg?logo=clerk&logoColor=white)](https://clerk.com)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646CFF.svg?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC.svg?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB.svg?logo=python&logoColor=white)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 An AI-powered accounts-payable security engine that detects invoice tampering, unauthorized vendor bank/IFSC account modifications, and Business Email Compromise (BEC) wire diversions **before funds leave the company**.
+
+---
+
+## 🔐 Enterprise Authentication with Clerk
+
+AP Payment Fraud Sentinel integrates **[Clerk](https://clerk.com)** for enterprise-grade authentication and session governance:
+- **Obsidian Dark Theme**: Custom styled `<ClerkProvider>` aligning seamlessly with the cyber-fintech dashboard.
+- **Role-Gated Access**: Protects sensitive treasury and risk data behind authenticated sessions for *Chief Compliance Officers*, *AP Leads*, and *Auditors*.
+- **Live User Profile**: Features `<UserButton />` in the navigation header with user avatar, email badge, and verified session indicators.
+- **Secure Modals**: Instant `<SignInButton mode="modal">` and `<SignUpButton mode="modal">` integration for fast, multi-factor login.
 
 ---
 
@@ -123,6 +134,7 @@ Incoming Invoices & Mixed Media
 ### 📋 Prerequisites
 - **Python 3.10+**
 - **Node.js 18+** & `npm`
+- **Clerk Account** *(Free at [dashboard.clerk.com](https://dashboard.clerk.com))*
 
 ### 🔧 1. Backend Setup
 
@@ -160,6 +172,10 @@ cd frontend
 
 # Install Node dependencies
 npm install
+
+# Configure environment variables in .env.local
+# VITE_API_URL=http://127.0.0.1:8000
+# VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_key_here
 
 # Start Vite development server
 npm run dev
@@ -219,7 +235,8 @@ ap-fraud-sentinel/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Navbar.jsx                # Navigation bar
+│   │   │   ├── Auth/AuthGateView.jsx     # Clerk Authentication Gateway View
+│   │   │   ├── Navbar.jsx                # Navigation bar with UserButton
 │   │   │   ├── Dashboard/DashboardView.jsx # Executive KPI Dashboard
 │   │   │   ├── InvoiceDetail/InvoiceDetailView.jsx # Deep Dive & Judge View
 │   │   │   ├── BatchProcessing/BatchView.jsx # 100x Batch Scale View
@@ -228,6 +245,7 @@ ap-fraud-sentinel/
 │   │   ├── services/
 │   │   │   └── api.js                    # API client
 │   │   ├── App.jsx                       # Root React application
+│   │   ├── main.jsx                      # ClerkProvider & entrypoint
 │   │   └── index.css                     # Tailwind CSS & Theme styles
 │   ├── package.json                      # Node dependencies
 │   └── vite.config.js                    # Vite configuration
